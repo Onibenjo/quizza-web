@@ -48,7 +48,7 @@ export const useSocketEvent = (
   return { socket, unsubscribe, subscribe };
 };
 
-const SocketProvider = ({ children, opts }) => {
+const SocketProvider = ({ children, opts = {} }) => {
   const socketRef = useRef(null);
 
   if (typeof window === "undefined") {
@@ -56,7 +56,7 @@ const SocketProvider = ({ children, opts }) => {
   }
 
   if (!socketRef.current) {
-    socketRef.current = io(SOCKET_URL, opts || {});
+    socketRef.current = io(SOCKET_URL, opts);
   }
   return (
     <SocketIOContext.Provider value={socketRef.current}>
