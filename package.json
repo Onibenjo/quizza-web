@@ -1,0 +1,81 @@
+{
+  "name": "vital",
+  "version": "1.0.0",
+  "description": "Quizza app",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onibenjo/quizza-web.git"
+  },
+  "author": "Onibenjo <onibenjo@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/onibenjo/quizza-web/issues"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "typescript",
+    "jest",
+    "tailwind",
+    "template",
+    "starter",
+    "css-modules",
+    "eslint",
+    "prettier",
+    "husky",
+    "commit-lint"
+  ],
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not IE 11"
+  ],
+  "engines": {
+    "node": ">=16",
+    "yarn": ">=1.22.5"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "test": "jest",
+    "postinstall": "husky install",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "dependencies": {
+    "@heroicons/react": "^1.0.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "socket.io-client": "^4.4.0",
+    "socket.io-react-hook": "^1.0.13"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@tailwindcss/forms": "^0.3.4",
+    "@testing-library/jest-dom": "^5.16.0",
+    "@testing-library/react": "^12.1.2",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.11",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "autoprefixer": "^10.3.7",
+    "eslint": "^8.4.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "husky": "^7.0.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.4.3",
+    "lint-staged": "^12.1.2",
+    "postcss": "^8.4.4",
+    "prettier": "^2.5.1",
+    "tailwindcss": "^2.2.19",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.5.2",
+    "vite": "^2.6.14",
+    "vite-preset-react": "^2.2.0"
+  }
+}
