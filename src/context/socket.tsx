@@ -21,9 +21,10 @@ export const useSocketEvent = (
 
   callbackRef.current = callback;
 
-  const socketHandlerRef = useRef(function (...args) {
+  const socketHandlerRef = useRef(function (args) {
     if (callbackRef.current) {
-      callbackRef.current.apply(this, ...args);
+      callbackRef.current(args);
+      // callbackRef.current.apply(this, ...args);
     }
   });
 
@@ -35,7 +36,7 @@ export const useSocketEvent = (
 
   const unsubscribe = useCallback(() => {
     if (eventKey) {
-      socket.removeListener(eventKey, socketHandlerRef.current);
+      socket.off(eventKey, socketHandlerRef.current);
     }
   }, [eventKey, socket]);
 
