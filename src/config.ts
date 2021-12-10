@@ -1,4 +1,5 @@
-export const SOCKET_URL = "http://localhost:3001/";
+export const SOCKET_URL = "http://13.245.101.82";
+// export const SOCKET_URL = "http://localhost:3001";
 
 export const screens = {
   home: "/",

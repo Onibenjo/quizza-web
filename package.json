@@ -31,10 +31,6 @@
     "not dead",
     "not IE 11"
   ],
-  "engines": {
-    "node": ">=16",
-    "yarn": ">=1.22.5"
-  },
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
