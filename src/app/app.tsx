@@ -27,7 +27,7 @@ const App = (): JSX.Element => {
   return (
     <AppProvider>
       {/* //SocketProvider */}
-      <SocketProvider>
+      <main>
         <Layout>
           <CitationOverlay citation={citation} />
           <motion.div
@@ -75,7 +75,7 @@ const App = (): JSX.Element => {
             </div>
           </motion.div>
         </Layout>
-      </SocketProvider>
+      </main>
     </AppProvider>
   );
 };

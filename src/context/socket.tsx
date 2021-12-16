@@ -49,8 +49,10 @@ export const useSocketEvent = (
   return { socket, unsubscribe, subscribe };
 };
 
-const SocketProvider = ({ children, opts = {} }) => {
+const SocketProvider = ({ children, opts = { transports: ["polling"] } }) => {
   const socketRef = useRef(null);
+
+  console.log({ socketRef });
 
   if (typeof window === "undefined") {
     return <>{children}</>;

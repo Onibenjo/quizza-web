@@ -1,37 +1,57 @@
 import classNames from "classnames";
+import { SOCKET_URL } from "config";
 import { useApp } from "context/app";
-import { useSocketEvent } from "context/socket";
-import { useMemo, useState } from "react";
+import { useSocket, useSocketEvent } from "context/socket";
+import { useEffect, useMemo, useState } from "react";
+import { io } from "socket.io-client";
 
 const options = ["A", "B", "C", "D"];
 
 const QuizPage = () => {
-  const {} = useSocketEvent("response", (val) => {
-    console.log("socket:=> response connected", val);
-    console.log(
-      currentQuestion.options[options.indexOf(val.data.option)],
-      currentQuestion.answer
-    );
-    setHasEntered(true);
-    setYourPick(
-      val.data.option +
-        ", " +
-        currentQuestion.options[options.indexOf(val.data.option)]
-    );
-    if (
-      currentQuestion.options[options.indexOf(val.data.option)] ===
-      currentQuestion.answer
-    ) {
-      setCorrect(true);
-      setTimeout(() => {
-        setHasEntered(false);
-        setCorrect(false);
-        setStep((v) => v + 1);
-      }, 4000);
-    } else {
-      setCorrect(false);
-    }
-  });
+  // const {} = useSocketEvent("response", (val) => {
+  //   console.log("socket:=> response connected", val);
+  //   console.log(
+  //     currentQuestion.options[options.indexOf(val.data.option)],
+  //     currentQuestion.answer
+  //   );
+  //   setHasEntered(true);
+  //   setYourPick(
+  //     val.data.option +
+  //       ", " +
+  //       currentQuestion.options[options.indexOf(val.data.option)]
+  //   );
+  //   if (
+  //     currentQuestion.options[options.indexOf(val.data.option)] ===
+  //     currentQuestion.answer
+  //   ) {
+  //     setCorrect(true);
+  //     setTimeout(() => {
+  //       setHasEntered(false);
+  //       setCorrect(false);
+  //       setStep((v) => v + 1);
+  //     }, 4000);
+  //   } else {
+  //     setCorrect(false);
+  //   }
+  // });
+  // const socket = useSocket();
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL, {
+      transports: ["polling", "websocket"], // use WebSocket first, if available
+      reconnectionDelayMax: 20000,
+    });
+    socket.on("response", () => {
+      console.log("response");
+    });
+    socket.on("connection", () => {
+      console.log("socket connected");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const { quiz } = useApp();
   const [step, setStep] = useState(0);
