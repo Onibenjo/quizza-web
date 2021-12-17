@@ -1,6 +1,7 @@
 export const SOCKET_URL = "http://192.168.186.52";
 // export const SOCKET_URL = "http://13.245.101.82";
 // export const SOCKET_URL = "http://localhost:3001";
+export const BASE_API = import.meta.env.VITE_BASE_API;
 
 export const screens = {
   home: "/",
@@ -8,4 +9,9 @@ export const screens = {
   quiz: "/quiz",
   createQuiz: "/admin/create-quiz",
   addQuestion: "/admin/add-question",
+};
+
+export const API = {
+  createQuiz: "/quiz",
+  createQuestion: (quizId: string) => `/quiz/${quizId}/question`,
 };

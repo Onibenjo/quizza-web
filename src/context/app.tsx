@@ -15,31 +15,31 @@ const AppProvider = ({ children }) => {
     title: "Biology",
     description: "Geta afbjafa",
     questions: [
-      {
-        question: "Who is a man?",
-        answer: "human",
-        options: ["human", "Buhari", "Donald", "Titi"],
-      },
-      {
-        question: "Who is the president of Nigeria",
-        answer: "Omalicha",
-        options: ["Omalicha", "Bwari", "Abuja", "Sonwolu"],
-      },
-      {
-        question: "Who is her daddy?",
-        answer: "Zaddy",
-        options: ["Zaddy", "Atata", "Gbagaga", "Arteta"],
-      },
-      {
-        question: "Shade is a man of the boy?",
-        answer: "H.E.R",
-        options: ["H.E.R", "H.I.M", "T.H.E.M", "W.H.O"],
-      },
-      {
-        question: "Unilorin stands for what?",
-        answer: "Stress",
-        options: ["Stress", "suffering", "Agege", "Alomo bitters"],
-      },
+      // {
+      //   question: "Who is a man?",
+      //   answer: "human",
+      //   options: ["human", "Buhari", "Donald", "Titi"],
+      // },
+      // {
+      //   question: "Who is the president of Nigeria",
+      //   answer: "Omalicha",
+      //   options: ["Omalicha", "Bwari", "Abuja", "Sonwolu"],
+      // },
+      // {
+      //   question: "Who is her daddy?",
+      //   answer: "Zaddy",
+      //   options: ["Zaddy", "Atata", "Gbagaga", "Arteta"],
+      // },
+      // {
+      //   question: "Shade is a man of the boy?",
+      //   answer: "H.E.R",
+      //   options: ["H.E.R", "H.I.M", "T.H.E.M", "W.H.O"],
+      // },
+      // {
+      //   question: "Unilorin stands for what?",
+      //   answer: "Stress",
+      //   options: ["Stress", "suffering", "Agege", "Alomo bitters"],
+      // },
     ],
   });
 

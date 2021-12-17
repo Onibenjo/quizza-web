@@ -1,8 +1,9 @@
 import Button from "components/Button";
-import { screens } from "config";
+import { API, screens } from "config";
 import { useApp } from "context/app";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
+import useAxios from "axios-hooks";
 
 const CreateQuizPage = () => {
   const { setQuiz } = useApp();
@@ -10,17 +11,34 @@ const CreateQuizPage = () => {
   const descRef = useRef(null);
   const titleRef = useRef(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!titleRef.current?.value || !descRef.current?.value) {
-      alert("Fill in all fields");
-      return;
+  const [{ data, loading, error }, postData] = useAxios(
+    { url: API.createQuiz, method: "POST" },
+    { manual: true }
+  );
+  console.log({ loading, error });
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      if (!titleRef.current?.value || !descRef.current?.value) {
+        alert("Fill in all fields");
+        return;
+      }
+      await postData({
+        data: {
+          title: titleRef.current?.value,
+          description: descRef.current?.value,
+        },
+      });
+      setQuiz({
+        title: titleRef.current?.value,
+        description: descRef.current?.value,
+        id: data.newQuiz._id,
+      });
+      navigate(screens.addQuestion);
+    } catch (error) {
+      //
     }
-    setQuiz({
-      title: titleRef.current?.value,
-      description: descRef.current?.value,
-    });
-    navigate(screens.addQuestion);
   };
 
   return (

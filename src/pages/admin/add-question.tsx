@@ -1,10 +1,12 @@
 import Button from "components/Button";
-import { screens } from "config";
+import { API, screens } from "config";
 import { useApp } from "context/app";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { GrFormClose } from "react-icons/gr";
 import { Link } from "react-router-dom";
+import useAxios from "axios-hooks";
+import PaperPlaneLoader from "components/Loaders/PaperPlaneLoader";
 
 const AddQuestionPage = () => {
   const { quiz, setQuestion } = useApp();
@@ -14,42 +16,97 @@ const AddQuestionPage = () => {
   const optionOneRef = useRef(null);
   const optionTwoRef = useRef(null);
   const optionThreeRef = useRef(null);
-  const isFirstQuestion = useRef(true);
+
+  const [{ loading, error }, postData] = useAxios(
+    { url: API.createQuestion(quiz?.id), method: "POST" },
+    { manual: true }
+  );
+  console.log({ loading, error });
 
   useEffect(() => {
-    if (!quiz) {
+    if (!quiz?.id) {
       navigate(screens.createQuiz);
     }
   }, [navigate, quiz]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!questionRef.current?.value || !answerRef.current?.value) {
-      alert("Fill in all fields");
-      return;
-    }
-    setQuestion({
-      question: questionRef.current?.value,
-      answer: answerRef.current?.value,
-      options: [
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      if (!questionRef.current?.value || !answerRef.current?.value) {
+        alert("Fill in all fields");
+        return;
+      }
+      const options: string[] = [
         answerRef.current?.value,
         optionOneRef.current?.value,
         optionTwoRef.current?.value,
         optionThreeRef.current?.value,
-      ],
-    });
-    isFirstQuestion.current = false;
-    questionRef.current.value = "";
-    answerRef.current.value = "";
-    optionOneRef.current.value = "";
-    optionTwoRef.current.value = "";
-    optionThreeRef.current.value = "";
+      ];
+      if (
+        [...new Set(options.map((v) => v.toLowerCase()).map((v) => v.trim()))]
+          .length !== 4
+      ) {
+        alert("Holla, wrong");
+        return;
+      }
+
+      await postData({
+        data: {
+          question: questionRef.current?.value,
+          answer: answerRef.current?.value,
+          options,
+        },
+      });
+      setQuestion({
+        question: questionRef.current?.value,
+        answer: answerRef.current?.value,
+        options,
+      });
+
+      questionRef.current.value = "";
+      answerRef.current.value = "";
+      optionOneRef.current.value = "";
+      optionTwoRef.current.value = "";
+      optionThreeRef.current.value = "";
+    } catch (error) {
+      //
+    }
   };
+
+  // const onSubmit = async () => {
+  //   try {
+  //     await postData({
+  //       data: {
+  //         question: questionRef.current?.value,
+  //         answer: answerRef.current?.value,
+  //         options: [
+  //           answerRef.current?.value,
+  //           optionOneRef.current?.value,
+  //           optionTwoRef.current?.value,
+  //           optionThreeRef.current?.value,
+  //         ],
+  //       },
+  //     });
+  //   } catch (error) {
+  //     //
+  //   }
+  // };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl min-w-[500px] py-8 px-4">
+        <PaperPlaneLoader />
+        <p className="text-2xl text-center -mt-10">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl min-w-[500px] py-8 px-4">
       <div className="flex justify-between">
-        <h1 className="font-bold mb-4 text-xl">Add Question</h1>
+        <h1 className="font-bold mb-4 text-xl">
+          Add {quiz?.questions.length ? "Next" : null} Question
+        </h1>
         <Link to={screens.createQuiz}>
           <GrFormClose size={30} />
         </Link>
@@ -109,8 +166,22 @@ const AddQuestionPage = () => {
           </div>
         </div>
         <Button type="submit" className="">
-          {isFirstQuestion.current ? "Add Question" : "Add another question"}
+          {quiz.questions.length ? "Add Another Question" : "Add Question"}
         </Button>
+        {quiz.questions.length ? (
+          <>
+            <p className="text-xl">
+              You have added {quiz.questions.length} question
+              {quiz.questions.length > 1 && "s"} so far. <br />
+              Are you done?
+            </p>
+            <Link to={screens.createQuiz}>
+              <Button type="submit" className="w-full">
+                Close
+              </Button>
+            </Link>
+          </>
+        ) : null}
       </form>
     </div>
   );
