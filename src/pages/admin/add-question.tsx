@@ -107,9 +107,11 @@ const AddQuestionPage = () => {
         <h1 className="font-bold mb-4 text-xl">
           Add {quiz?.questions.length ? "Next" : null} Question
         </h1>
-        <Link to={screens.createQuiz}>
-          <GrFormClose size={30} />
-        </Link>
+        {quiz?.questions.length ? (
+          <Link to={screens.createQuiz}>
+            <GrFormClose size={30} />
+          </Link>
+        ) : null}
       </div>
       <form className="grid gap-y-4" onSubmit={handleSubmit}>
         <div className="grid">

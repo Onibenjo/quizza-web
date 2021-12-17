@@ -11,7 +11,7 @@ const CreateQuizPage = () => {
   const descRef = useRef(null);
   const titleRef = useRef(null);
 
-  const [{ data, loading, error }, postData] = useAxios(
+  const [{ loading, error }, postData] = useAxios(
     { url: API.createQuiz, method: "POST" },
     { manual: true }
   );
@@ -24,7 +24,7 @@ const CreateQuizPage = () => {
         alert("Fill in all fields");
         return;
       }
-      await postData({
+      const res = await postData({
         data: {
           title: titleRef.current?.value,
           description: descRef.current?.value,
@@ -33,7 +33,7 @@ const CreateQuizPage = () => {
       setQuiz({
         title: titleRef.current?.value,
         description: descRef.current?.value,
-        id: data.newQuiz._id,
+        id: res.data.newQuiz._id,
       });
       navigate(screens.addQuestion);
     } catch (error) {

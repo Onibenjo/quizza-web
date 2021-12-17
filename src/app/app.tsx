@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import AdminPage from "pages/admin";
 import CreateQuizPage from "pages/admin/create-quiz";
 import AddQuestionPage from "pages/admin/add-question";
+import SelectQuestionsPage from "pages/select-questions";
 
 const App = (): JSX.Element => {
   const [citation, setCitation] = useState(true);
@@ -44,7 +45,7 @@ const App = (): JSX.Element => {
             initial="initial"
             animate={main ? "visible" : "initial"}
             transition={{
-              duration: 1.0,
+              duration: 0.6,
             }}
           >
             {/*  */}
@@ -52,6 +53,10 @@ const App = (): JSX.Element => {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path={screens.quiz} element={<QuizPage />} />
+                <Route
+                  path={screens.selectQuestion}
+                  element={<SelectQuestionsPage />}
+                />
                 <Route path={screens.admin} element={<AdminPage />}>
                   <Route
                     path={screens.createQuiz}

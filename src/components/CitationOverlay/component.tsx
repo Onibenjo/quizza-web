@@ -44,8 +44,8 @@ export const CitationOverlay: FC<Props> = ({ citation }: Props) => {
           initial="initial"
           animate="visible"
           transition={{
-            delay: 3.0,
-            duration: 1.2,
+            delay: 1.5,
+            duration: 0.6,
           }}
         >
           <NinjaIcon className="w-10 mb-2 fill-current md:ml-auto dark:text-light-900 text-dark-900" />
@@ -56,8 +56,8 @@ export const CitationOverlay: FC<Props> = ({ citation }: Props) => {
           initial="initial"
           animate="visible"
           transition={{
-            delay: 1.0,
-            duration: 1.2,
+            delay: 0.5,
+            duration: 0.6,
           }}
         >
           Welcome to QUIZZA
@@ -68,8 +68,8 @@ export const CitationOverlay: FC<Props> = ({ citation }: Props) => {
           animate="visible"
           variants={textVariants}
           transition={{
-            delay: 2.0,
-            duration: 1.2,
+            delay: 1.0,
+            duration: 0.6,
           }}
         >
           onibenjo et. cykic

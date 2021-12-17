@@ -5,7 +5,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
-    navigate(screens.quiz);
+    navigate(screens.selectQuestion);
   };
 
   return (

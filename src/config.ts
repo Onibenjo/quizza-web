@@ -7,6 +7,7 @@ export const screens = {
   home: "/",
   admin: "/admin",
   quiz: "/quiz",
+  selectQuestion: "/select-question",
   createQuiz: "/admin/create-quiz",
   addQuestion: "/admin/add-question",
 };
@@ -14,4 +15,7 @@ export const screens = {
 export const API = {
   createQuiz: "/quiz",
   createQuestion: (quizId: string) => `/quiz/${quizId}/question`,
+  getAllQuizzes: "/quiz",
+  getAllQuizMasters: "/quizmasters",
+  getAllQuestions: (id: string) => `/quiz/${id}/question`,
 };
