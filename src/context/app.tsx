@@ -12,8 +12,8 @@ export const useApp = () => useContext(AppContext);
 
 const AppProvider = ({ children }) => {
   const [quiz, _setQuiz] = useState({
-    title: "Biology",
-    description: "Geta afbjafa",
+    // title: "Biology",
+    // description: "Geta afbjafa",
     questions: [
       // {
       //   question: "Who is a man?",

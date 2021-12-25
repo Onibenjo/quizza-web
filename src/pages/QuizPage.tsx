@@ -58,6 +58,7 @@ const QuizPage = () => {
   const [correct, setCorrect] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
   const [yourPick, setYourPick] = useState("");
+
   const currentQuestion = useMemo(
     () => quiz.questions[step],
     [quiz.questions, step]
@@ -68,7 +69,7 @@ const QuizPage = () => {
       <div className="text-center font-bold text-2xl">{quiz.title}</div>
       <div className="">
         <div className="text-2xl my-4">
-          Question {step + 1}: {currentQuestion.question}
+          Question {step + 1}: {currentQuestion?.question}
         </div>
         {hasEntered ? (
           <div
@@ -81,7 +82,7 @@ const QuizPage = () => {
           </div>
         ) : null}
         <ul>
-          {currentQuestion.options.map((v, i) => (
+          {currentQuestion?.options.map((v, i) => (
             <li key={i} className="bg-white rounded-lg shadow flex my-3">
               <div className="w-10 text-center bg-green-600 text-white flex justify-center items-center">
                 {options[i]}
