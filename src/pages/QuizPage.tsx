@@ -1,9 +1,12 @@
 import classNames from "classnames";
+import CountDownTimer from "components/CountdownTimer";
 import { SOCKET_URL } from "config";
 import { useApp } from "context/app";
 import { useSocket, useSocketEvent } from "context/socket";
+import useCountDownTimer from "hooks/useCountDownTimer";
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
+import useSound from "use-sound";
 
 const options = ["A", "B", "C", "D"];
 
@@ -36,6 +39,16 @@ const QuizPage = () => {
   // });
   // const socket = useSocket();
 
+  const [timer] = useCountDownTimer({
+    timestamp: 16,
+    timerCallback: () => {
+      console.log("done");
+      stopTick();
+    },
+  });
+
+  const [playTick, { stop: stopTick }] = useSound("/sounds/Clock-Ticking.mp3");
+
   useEffect(() => {
     const socket = io(SOCKET_URL, {
       transports: ["polling", "websocket"], // use WebSocket first, if available
@@ -53,6 +66,10 @@ const QuizPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    playTick();
+  }, [playTick]);
+
   const { quiz } = useApp();
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(false);
@@ -65,32 +82,38 @@ const QuizPage = () => {
   );
 
   return (
-    <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto my-20">
-      <div className="text-center font-bold text-2xl">{quiz.title}</div>
-      <div className="">
-        <div className="text-2xl my-4">
-          Question {step + 1}: {currentQuestion?.question}
-        </div>
-        {hasEntered ? (
-          <div
-            className={classNames("text-3xl", {
-              "text-red-700": !correct,
-              "text-green-700": correct,
-            })}
-          >
-            You picked {yourPick} and you're {correct ? "Correct" : "Wrong"}
+    <div className="flex justify-around min-h-screen items-center px-4">
+      <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
+        <div className="text-center font-bold text-2xl">{quiz.title}</div>
+        <div className="">
+          <div className="text-2xl my-4">
+            Question {step + 1}: {currentQuestion?.question}
           </div>
-        ) : null}
-        <ul>
-          {currentQuestion?.options.map((v, i) => (
-            <li key={i} className="bg-white rounded-lg shadow flex my-3">
-              <div className="w-10 text-center bg-green-600 text-white flex justify-center items-center">
-                {options[i]}
-              </div>
-              <div className="py-4 px-2 max-w-[300px]">{v}</div>
-            </li>
-          ))}
-        </ul>
+          {hasEntered ? (
+            <div
+              className={classNames("text-3xl", {
+                "text-red-700": !correct,
+                "text-green-700": correct,
+              })}
+            >
+              You picked {yourPick} and you're {correct ? "Correct" : "Wrong"}
+            </div>
+          ) : null}
+          <ul>
+            {currentQuestion?.options.map((v, i) => (
+              <li key={i} className="bg-white rounded-lg shadow flex my-3">
+                <div className="w-10 text-center bg-green-600 text-white flex justify-center items-center">
+                  {options[i]}
+                </div>
+                <div className="py-4 px-2 max-w-[300px]">{v}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
+        {/* <CountDownTimer timestamp={100} textStyle={{ fontSize: 60 }} /> */}
+        <p className="text-6xl">{timer || "00:00"}</p>
       </div>
     </div>
   );
