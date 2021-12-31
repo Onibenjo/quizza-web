@@ -1,5 +1,6 @@
 import { screens } from "config";
 import { useNavigate } from "react-router-dom";
+import { CitationLayout } from ".";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const HomePage = () => {
   };
 
   return (
-    <div>
+    <CitationLayout>
       <div className="flex justify-center items-center h-screen">
         <div className="rounded-lg bg-white shadow-dark-700 max-w-md w-full px-6 py-10">
           <h1 className="text-4xl text-center">QUIZZA</h1>
@@ -21,7 +22,7 @@ const HomePage = () => {
           </button>
         </div>
       </div>
-    </div>
+    </CitationLayout>
   );
 };
 

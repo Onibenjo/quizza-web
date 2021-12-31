@@ -6,6 +6,7 @@ import Button from "components/Button";
 import { useApp } from "context/app";
 import { useNavigate } from "react-router";
 import QuizLoader from "components/Loaders/QuizLoader";
+import { CitationLayout } from "components/Layout";
 
 const SelectQuestionsPage = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -62,40 +63,42 @@ const SelectQuestionsPage = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <form
-        className="bg-gray-100 rounded-xl min-w-[300px] py-8 px-4 mx-auto"
-        onSubmit={handleSubmit}
-      >
-        <div className="text-center font-bold text-2xl capitalize mb-4">
-          Select a quiz
-        </div>
-        <Select
-          value={selectedOption}
-          onChange={handleChange}
-          options={data.data.map(({ title, _id, ...rest }) => ({
-            ...rest,
-            value: _id,
-            label: title,
-          }))}
-        />
-        <div className="mt-4">
-          <label htmlFor="numQuiz">Input number of questions</label>
-          <input
-            type="number"
-            id="numQuiz"
-            name="numQuiz"
-            className="border p-2 mt-2 rounded w-full"
-            placeholder="0"
-            value={String(numQuiz)}
-            onChange={(e) => setNumQuiz(Number(e.target.value))}
+    <CitationLayout>
+      <div className="flex justify-center items-center min-h-screen">
+        <form
+          className="bg-gray-100 rounded-xl min-w-[300px] py-8 px-4 mx-auto"
+          onSubmit={handleSubmit}
+        >
+          <div className="text-center font-bold text-2xl capitalize mb-4">
+            Select a quiz
+          </div>
+          <Select
+            value={selectedOption}
+            onChange={handleChange}
+            options={data.data.map(({ title, _id, ...rest }) => ({
+              ...rest,
+              value: _id,
+              label: title,
+            }))}
           />
-        </div>
-        <Button className="mt-4 w-full" type="submit">
-          Get Questions
-        </Button>
-      </form>
-    </div>
+          <div className="mt-4">
+            <label htmlFor="numQuiz">Input number of questions</label>
+            <input
+              type="number"
+              id="numQuiz"
+              name="numQuiz"
+              className="border p-2 mt-2 rounded w-full"
+              placeholder="0"
+              value={String(numQuiz)}
+              onChange={(e) => setNumQuiz(Number(e.target.value))}
+            />
+          </div>
+          <Button className="mt-4 w-full" type="submit">
+            Get Questions
+          </Button>
+        </form>
+      </div>
+    </CitationLayout>
   );
 };
 
