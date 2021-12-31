@@ -15,7 +15,7 @@ const SelectQuestionsPage = () => {
 
   const { setQuiz } = useApp();
   const [{ data, loading, error }] = useAxios(API.getAllQuizzes);
-  const [{}, getQuestions] = useAxios({ method: "GET" }, { manual: true });
+  // const [{}, getQuestions] = useAxios({ method: "GET" }, { manual: true });
   const navigate = useNavigate();
 
   const handleChange = (selectedOption) => {
@@ -26,21 +26,21 @@ const SelectQuestionsPage = () => {
     e.preventDefault();
     if (numQuiz > 0 && selectedOption) {
       try {
-        const {
-          data: { data: questions },
-        } = await getQuestions({
-          url: API.getAllQuestions(selectedOption.value),
-        });
+        // const {
+        //   data: { data: questions },
+        // } = await getQuestions({
+        //   url: API.getAllQuestions(selectedOption.value),
+        // });
 
-        if (questions.length === 0) {
-          alert("This quiz has no questions");
-          return;
-        }
+        // if (questions.length === 0) {
+        //   alert("This quiz has no questions");
+        //   return;
+        // }
 
         setQuiz({
           ...data.data.filter((v) => v._id === selectedOption.value)[0],
           numQuiz,
-          questions,
+          // questions,
         });
         setShowAnimation(true);
       } catch (error) {
@@ -51,9 +51,9 @@ const SelectQuestionsPage = () => {
 
   useEffect(() => {
     if (canProceed) {
-      navigate(screens.quiz);
+      navigate(screens.quiz(selectedOption.value));
     }
-  }, [canProceed, navigate]);
+  }, [canProceed, navigate, selectedOption]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
@@ -80,7 +80,7 @@ const SelectQuestionsPage = () => {
           }))}
         />
         <div className="mt-4">
-          <label htmlFor="numQuiz">Select number of quiz</label>
+          <label htmlFor="numQuiz">Input number of questions</label>
           <input
             type="number"
             id="numQuiz"

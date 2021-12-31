@@ -1,14 +1,31 @@
+import useAxios from "axios-hooks";
 import classNames from "classnames";
 import CountDownTimer from "components/CountdownTimer";
-import { SOCKET_URL } from "config";
+import { API, SOCKET_URL } from "config";
 import { useApp } from "context/app";
 import { useSocket, useSocketEvent } from "context/socket";
 import useCountDownTimer from "hooks/useCountDownTimer";
 import { useEffect, useMemo, useState } from "react";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { useParams } from "react-router";
 import { io } from "socket.io-client";
 import useSound from "use-sound";
 
 const options = ["A", "B", "C", "D"];
+
+const renderTime = ({ remainingTime }) => {
+  if (remainingTime === 0) {
+    return <div className="flex flex-col items-center">Too late...</div>;
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="text-[#aaa">Remaining</div>
+      <div className="text-[40px]">{remainingTime}</div>
+      <div className="text-[#aaa">seconds</div>
+    </div>
+  );
+};
 
 const QuizPage = () => {
   // const {} = useSocketEvent("response", (val) => {
@@ -38,16 +55,31 @@ const QuizPage = () => {
   //   }
   // });
   // const socket = useSocket();
-
-  const [timer] = useCountDownTimer({
-    timestamp: 16,
-    timerCallback: () => {
-      console.log("done");
+  const timerCallback: (v: number) => void | [boolean, number] = (
+    val: number
+  ) => {
+    console.log(val);
+    console.log("done");
+    // stopTick();
+    if (step <= quiz.questions.length - 1) {
+      setStep((prev) => prev + 1);
+      playTick();
+      return [true, 1000] as [boolean, number];
+    } else {
       stopTick();
-    },
-  });
+    }
+  };
 
   const [playTick, { stop: stopTick }] = useSound("/sounds/Clock-Ticking.mp3");
+  const { quizId } = useParams();
+  const [
+    {
+      data: { data: questions },
+      loading,
+    },
+  ] = useAxios(API.getAllQuestions(quizId));
+  console.log(questions, loading);
+  const { setQuiz, quiz } = useApp();
 
   useEffect(() => {
     const socket = io(SOCKET_URL, {
@@ -68,9 +100,14 @@ const QuizPage = () => {
 
   useEffect(() => {
     playTick();
-  }, [playTick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    setQuiz({
+      questions,
+    });
+  }, [questions, setQuiz]);
 
-  const { quiz } = useApp();
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
@@ -112,8 +149,21 @@ const QuizPage = () => {
         </div>
       </div>
       <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
-        {/* <CountDownTimer timestamp={100} textStyle={{ fontSize: 60 }} /> */}
-        <p className="text-6xl">{timer || "00:00"}</p>
+        <div className="flex justify-center">
+          <CountdownCircleTimer
+            isPlaying
+            duration={16}
+            colors={[
+              ["#004777", 0.33],
+              ["#F7B801", 0.33],
+              ["#A30000", 1],
+            ]}
+            onComplete={timerCallback}
+            // onComplete={() => [true, 1000]}
+          >
+            {renderTime}
+          </CountdownCircleTimer>
+        </div>
       </div>
     </div>
   );

@@ -22,7 +22,10 @@ const useCountDownTimer = (props): [string, () => void] => {
   // Flag for final display time format
   const [finalDisplayTime, setFinalDisplayTime] = useState("");
 
+  // const restart = () => setTimeStamp(props.timestamp ? props.timestamp : 0)
+
   useInterval(() => {
+    // console.log(timeStamp)
     if (timeStamp > 0) {
       setTimeStamp(timeStamp - 1);
     } else if (sendOnce) {

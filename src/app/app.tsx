@@ -52,7 +52,9 @@ const App = (): JSX.Element => {
             <div className={styles.main}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path={screens.quiz} element={<QuizPage />} />
+                <Route path={screens.quizRoot}>
+                  <Route path={screens.quiz()} element={<QuizPage />} />
+                </Route>
                 <Route
                   path={screens.selectQuestion}
                   element={<SelectQuestionsPage />}
