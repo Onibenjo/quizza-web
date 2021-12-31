@@ -1,12 +1,11 @@
-import useAxios from "axios-hooks";
 import classNames from "classnames";
 import { FadeLayout } from "components";
-import { API, SOCKET_URL } from "config";
+import { SOCKET_URL } from "config";
 import { useApp } from "context/app";
 import { useSocket, useSocketEvent } from "context/socket";
-import { useEffect, useMemo, useState } from "react";
+import { useFetchQuizQuestions } from "hooks/useFetchQuizQuestions";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
-import { useParams } from "react-router";
 import { io } from "socket.io-client";
 import useSound from "use-sound";
 
@@ -26,7 +25,7 @@ const renderTime = ({ remainingTime }) => {
   );
 };
 
-const QuizPage = () => {
+const Quiz = ({ questions }) => {
   // const {} = useSocketEvent("response", (val) => {
   //   console.log("socket:=> response connected", val);
   //   console.log(
@@ -54,37 +53,19 @@ const QuizPage = () => {
   //   }
   // });
   // const socket = useSocket();
-  const timerCallback: (v: number) => void | [boolean, number] = () => {
-    console.log(
-      step,
-      quiz.questions.length - 1,
-      step <= quiz.questions.length - 1
-    );
-    // stopTick();
-    if (step <= quiz.questions.length - 1) {
-      setStep((prev) => prev + 1);
-      playTick();
-      return [true, 1000] as [boolean, number];
-    } else {
-      stopTick();
-    }
-  };
+  // useFetchQuizQuestions();
 
   const [playTick, { stop: stopTick }] = useSound("/sounds/Clock-Ticking.mp3");
-  const { quizId } = useParams();
-  const [{ data: questionData, loading }] = useAxios(
-    API.getAllQuestions(quizId)
-  );
-  console.log(questionData, loading);
-  const { setQuiz, quiz } = useApp();
+  const { quiz } = useApp();
 
   useEffect(() => {
     const socket = io(SOCKET_URL, {
       transports: ["polling", "websocket"], // use WebSocket first, if available
       reconnectionDelayMax: 20000,
     });
-    socket.on("response", () => {
+    socket.on("response", (val) => {
       console.log("response");
+      handlr(val);
     });
     socket.on("connection", () => {
       console.log("socket connected");
@@ -100,31 +81,71 @@ const QuizPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (questionData?.data)
-      setQuiz({
-        questions: questionData?.data,
-      });
-  }, [questionData, setQuiz]);
-
   const [step, setStep] = useState(0);
   const [correct, setCorrect] = useState(false);
+  const [isBonus, setIsBonus] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
   const [yourPick, setYourPick] = useState("");
+  console.log({ quiz });
+  const currentQuestion = useMemo(() => questions[step], [questions, step]);
 
-  const currentQuestion = useMemo(
-    () => quiz.questions[step],
-    [quiz.questions, step]
-  );
+  const timerCallback: (v: number) => void | [boolean, number] =
+    useCallback(() => {
+      console.log(quiz);
+      console.log(step, questions.length - 1, step <= questions.length - 1);
+      stopTick();
+      if (isBonus) {
+        setIsBonus(false);
+      }
+      if (step < questions.length - 1) {
+        setStep((prev) => prev + 1);
+        playTick();
+        return [true, 1000] as [boolean, number];
+      } else {
+        stopTick();
+      }
+    }, [quiz, step, stopTick, isBonus, playTick]);
 
+  const handlr = (val) => {
+    console.log("socket:=> response connected", val);
+    console.log(currentQuestion);
+    console.log(
+      currentQuestion.options[options.indexOf(val.option)],
+      currentQuestion.answer
+    );
+    setHasEntered(true);
+    setYourPick(
+      val.option + ", " + currentQuestion.options[options.indexOf(val.option)]
+    );
+    if (
+      currentQuestion.options[options.indexOf(val.option)] ===
+      currentQuestion.answer
+    ) {
+      setCorrect(true);
+      setTimeout(() => {
+        setHasEntered(false);
+        setCorrect(false);
+        setStep((v) => v + 1);
+      }, 4000);
+    } else {
+      setCorrect(false);
+      setIsBonus(true);
+    }
+  };
+  console.log({ currentQuestion });
   return (
     <FadeLayout>
       <div className="flex justify-around min-h-screen items-center px-4">
-        <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
+        <div className="bg-gray-100 rounded-xl max-w-[450px] py-8 px-6 mx-auto w-full">
           <div className="text-center font-bold text-2xl">{quiz.title}</div>
           <div className="">
             <div className="text-2xl my-4">
-              Question {step + 1}: {currentQuestion?.question}
+              <span className="text-4xl">{step + 1}</span>
+              <span className="text-2xl">
+                {"/"}
+                {questions.length}
+              </span>
+              : {currentQuestion?.question}
             </div>
             {hasEntered ? (
               <div
@@ -137,7 +158,7 @@ const QuizPage = () => {
               </div>
             ) : null}
             <ul>
-              {currentQuestion?.options.map((v, i) => (
+              {currentQuestion?.options?.map((v, i) => (
                 <li key={i} className="bg-white rounded-lg shadow flex my-3">
                   <div className="w-10 text-center bg-green-600 text-white flex justify-center items-center">
                     {options[i]}
@@ -149,20 +170,56 @@ const QuizPage = () => {
           </div>
         </div>
         <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
-          <div className="flex justify-center">
+          <div className="flex justify-center flex-col">
+            {isBonus && (
+              <p className="text-2xl text-center mb-4 uppercase font-bold">
+                Bonus
+              </p>
+            )}
             <CountdownCircleTimer
+              key={isBonus ? "bonus" : "norms"}
               isPlaying
-              duration={16}
+              duration={isBonus ? 5 : 15}
               colors={[
                 ["#004777", 0.33],
                 ["#F7B801", 0.33],
-                ["#A30000", 1],
+                ["#A30000", 0.33],
               ]}
               onComplete={timerCallback}
               // onComplete={() => [true, 1000]}
             >
               {renderTime}
             </CountdownCircleTimer>
+            {/* {isBonus ? (
+              <CountdownCircleTimer
+                key="bonus"
+                isPlaying
+                duration={5}
+                colors={[
+                  ["#004777", 0.33],
+                  ["#F7B801", 0.33],
+                  ["#A30000", 0.33],
+                ]}
+                onComplete={timerCallback}
+                // onComplete={() => [true, 1000]}
+              >
+                {renderTime}
+              </CountdownCircleTimer>
+            ) : (
+              <CountdownCircleTimer
+                isPlaying
+                duration={15}
+                colors={[
+                  ["#004777", 0.33],
+                  ["#F7B801", 0.33],
+                  ["#A30000", 0.33],
+                ]}
+                onComplete={timerCallback}
+                // onComplete={() => [true, 1000]}
+              >
+                {renderTime}
+              </CountdownCircleTimer>
+            )} */}
           </div>
         </div>
       </div>
@@ -170,4 +227,4 @@ const QuizPage = () => {
   );
 };
 
-export default QuizPage;
+export default Quiz;

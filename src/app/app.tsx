@@ -1,17 +1,14 @@
-import SocketProvider from "context/socket";
 import styles from "./app.module.css";
 import { Routes, Route } from "react-router-dom";
 import HomePage from "components/Home";
 import AppProvider from "context/app";
 import { screens } from "config";
-import QuizPage from "pages/QuizPage";
-import { CitationOverlay, Layout } from "components";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { Layout } from "components";
 import AdminPage from "pages/admin";
 import CreateQuizPage from "pages/admin/create-quiz";
 import AddQuestionPage from "pages/admin/add-question";
 import SelectQuestionsPage from "pages/select-questions";
+import QuizPage from "pages/quiz-page";
 
 const App = (): JSX.Element => {
   return (
