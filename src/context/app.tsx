@@ -54,7 +54,6 @@ const AppProvider = ({ children }) => {
     () => ({ quiz, setQuiz, setQuestion }),
     [quiz, setQuestion, setQuiz]
   );
-  console.log({ values });
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };

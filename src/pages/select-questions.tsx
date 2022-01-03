@@ -63,7 +63,7 @@ const SelectQuestionsPage = () => {
   }
 
   return (
-    <CitationLayout>
+    <>
       <div className="flex justify-center items-center min-h-screen">
         <form
           className="bg-gray-100 rounded-xl min-w-[300px] py-8 px-4 mx-auto"
@@ -98,7 +98,7 @@ const SelectQuestionsPage = () => {
           </Button>
         </form>
       </div>
-    </CitationLayout>
+    </>
   );
 };
 
