@@ -72,7 +72,8 @@ const Quiz = ({ questions }) => {
   };
 
   const validateAnswer = useCallback(
-    (val) => {
+    (_val) => {
+      const val = { device: _val.device, option: _val.option.toUpperCase() };
       console.log("socket:=> response connected", val);
       console.log(currentQuestion);
       console.log(
