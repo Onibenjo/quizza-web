@@ -10,6 +10,7 @@ import { io } from "socket.io-client";
 import useSound from "use-sound";
 import { Line } from "rc-progress";
 import { IoCheckbox, IoCloseCircle } from "react-icons/io5";
+import { ScoreBoard } from "components/ScoreBoard";
 
 const options = ["A", "B", "C", "D"];
 
@@ -54,20 +55,22 @@ const Quiz = ({ questions }) => {
 
   const timerCallback: (v: number) => void | [boolean, number] = () => {
     console.log(step, questions.length - 1, step <= questions.length - 1);
-    stopTick();
-    if (isBonus) {
-      setIsBonus(false);
-    }
-    if (step < questions.length - 1) {
-      setStep((prev) => prev + 1);
-      setCurrentOptionSelected(null);
-      setCorrectOption(null);
-      setIsOptionsDisabled(false);
-      playTick();
-      return [true, 1000] as [boolean, number];
-    } else {
-      stopTick();
-      setShowScore(true);
+
+    if (!isOptionsDisabled) {
+      if (isBonus) {
+        setIsBonus(false);
+      }
+      if (step < questions.length - 1) {
+        setCurrentOptionSelected(null);
+        setCorrectOption(null);
+        setIsOptionsDisabled(false);
+        setStep((prev) => prev + 1);
+        playTick();
+        return [true, 1000] as [boolean, number];
+      } else {
+        stopTick();
+        setShowScore(true);
+      }
     }
   };
 
@@ -94,7 +97,7 @@ const Quiz = ({ questions }) => {
       if (selectedOption === currentQuestion.answer) {
         setScore((oldScore) => ({
           ...oldScore,
-          [val.device]: oldScore[val.device] + 10,
+          [val.device]: oldScore[val.device] + (isBonus ? 5 : 10),
         }));
 
         setTimeout(() => {
@@ -103,15 +106,27 @@ const Quiz = ({ questions }) => {
             setCurrentOptionSelected(null);
             setCorrectOption(null);
             setIsOptionsDisabled(false);
+            setIsBonus(false);
           } else {
             setShowScore(true);
           }
         }, 3000);
       } else {
-        setIsBonus(true);
+        setTimeout(() => {
+          if (isBonus) {
+            setStep((v) => v + 1);
+            // setIsBonus(false);
+          } else {
+            // setIsBonus(true);
+          }
+          setIsBonus((v) => !v);
+          setCurrentOptionSelected(null);
+          setCorrectOption(null);
+          setIsOptionsDisabled(false);
+        }, 2000);
       }
     },
-    [currentQuestion, isOptionsDisabled, questions.length, step]
+    [currentQuestion, isBonus, isOptionsDisabled, questions, step]
   );
 
   useEffect(() => {
@@ -139,14 +154,8 @@ const Quiz = ({ questions }) => {
 
   console.log({ currentQuestion });
 
-  if (showScore) {
-    return (
-      <div className="flex justify-around min-h-screen items-center px-4">
-        <div className="bg-gray-100 rounded-xl max-w-[450px] py-8 px-6 mx-auto w-full">
-          {JSON.stringify(score, null, 2)}
-        </div>
-      </div>
-    );
+  if (showScore || step >= questions.length) {
+    return <ScoreBoard score={score} />;
   }
   return (
     <FadeLayout>
@@ -168,7 +177,9 @@ const Quiz = ({ questions }) => {
                 {questions.length}
               </span>
             </div>
-            {isBonus && <p className="font-bold text-2xl italic">BONUS</p>}
+            {isBonus && (
+              <p className="font-bold text-2xl italic text-green-600">BONUS</p>
+            )}
             <div className="text-2xl">{currentQuestion?.question}</div>
             {currentOptionSelected ? (
               <div
@@ -216,7 +227,7 @@ const Quiz = ({ questions }) => {
             <CountdownCircleTimer
               key={timerKey}
               isPlaying
-              duration={isBonus ? 15 : 35}
+              duration={isBonus ? 15 : 135}
               colors={[
                 ["#004777", 0.33],
                 ["#F7B801", 0.33],
@@ -227,6 +238,23 @@ const Quiz = ({ questions }) => {
             >
               {renderTime}
             </CountdownCircleTimer>
+          </div>
+        </div>
+        <div className="w-full absolute h-[40px] px-2 pb-8 bg-white bottom-0 grid grid-cols-2 items-center">
+          <div className="text-2xl font-bold">Scoreboard:</div>
+          <div className="grid grid-cols-2 text-xl">
+            <p className="">
+              Device 1 {"=>"} {score["1"]}
+            </p>
+            <p className="">
+              Device 2 {"=>"} {score["2"]}
+            </p>
+            <p className="">
+              Device 3 {"=>"} {score["3"]}
+            </p>
+            <p className="">
+              Device 4 {"=>"} {score["4"]}
+            </p>
           </div>
         </div>
       </div>
