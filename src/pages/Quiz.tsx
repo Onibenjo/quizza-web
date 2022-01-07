@@ -110,8 +110,14 @@ const Quiz = ({ questions }) => {
           } else {
             setShowScore(true);
           }
-        }, 3000);
+        }, 4000);
       } else {
+        if (!isBonus) {
+          setScore((oldScore) => ({
+            ...oldScore,
+            [val.device]: oldScore[val.device] - 5,
+          }));
+        }
         setTimeout(() => {
           if (isBonus) {
             setStep((v) => v + 1);
@@ -123,7 +129,7 @@ const Quiz = ({ questions }) => {
           setCurrentOptionSelected(null);
           setCorrectOption(null);
           setIsOptionsDisabled(false);
-        }, 2000);
+        }, 4000);
       }
     },
     [currentQuestion, isBonus, isOptionsDisabled, questions, step]
