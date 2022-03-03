@@ -2,9 +2,7 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  mode: "jit",
-  purge: ["./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: false, // or 'media' or 'class'
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -56,9 +54,6 @@ module.exports = {
         sectionHeader: "1.75rem",
       },
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [],
 };

@@ -56,7 +56,6 @@
     "react-router-dom": "6.2.2",
     "react-select": "^5.2.2",
     "socket.io-client": "^4.4.1",
-    "socket.io-react-hook": "^1.0.15",
     "use-sound": "^4.0.1"
   },
   "devDependencies": {
