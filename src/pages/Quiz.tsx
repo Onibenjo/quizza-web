@@ -1,16 +1,17 @@
-import classNames from "classnames";
+import { QuizCardHeader } from "./../components/Quiz/QuizCardHeader";
 import { FadeLayout } from "components";
-import { SOCKET_URL } from "config";
 import { useApp } from "context/app";
 import { useSocket, useSocketEvent } from "context/socket";
-import { useFetchQuizQuestions } from "hooks/useFetchQuizQuestions";
+// import { useFetchQuizQuestions } from "hooks/useFetchQuizQuestions";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
-import { io } from "socket.io-client";
 import useSound from "use-sound";
-import { Line } from "rc-progress";
 import { IoCheckbox, IoCloseCircle } from "react-icons/io5";
 import { ScoreBoard } from "components/ScoreBoard";
+import BottomScoreboard from "components/Quiz/BottomScoreboard";
+// import { socket } from "lib/socket";
+
+type ITimerCallback = void | { shouldRepeat: boolean; delay: number };
 
 const options = ["A", "B", "C", "D"];
 
@@ -29,7 +30,6 @@ const renderTime = ({ remainingTime }) => {
 };
 
 const Quiz = ({ questions }) => {
-  // const {} = useSocketEvent("response", validateAnswer);
   // const socket = useSocket();
   // useFetchQuizQuestions();
 
@@ -39,6 +39,7 @@ const Quiz = ({ questions }) => {
   const [step, setStep] = useState(0);
   const [timerKey, setTimerKey] = useState(0);
   const [isBonus, setIsBonus] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [yourPick, setYourPick] = useState("");
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
@@ -53,7 +54,7 @@ const Quiz = ({ questions }) => {
 
   const currentQuestion = useMemo(() => questions[step], [questions, step]);
 
-  const timerCallback: (v: number) => void | [boolean, number] = () => {
+  const timerCallback: (v: number) => ITimerCallback = () => {
     console.log(step, questions.length - 1, step <= questions.length - 1);
 
     if (!isOptionsDisabled) {
@@ -66,7 +67,8 @@ const Quiz = ({ questions }) => {
         setIsOptionsDisabled(false);
         setStep((prev) => prev + 1);
         playTick();
-        return [true, 1000] as [boolean, number];
+        return { shouldRepeat: true, delay: 1 };
+        // return [true, 1000] as [boolean, number];
       } else {
         stopTick();
         setShowScore(true);
@@ -100,6 +102,8 @@ const Quiz = ({ questions }) => {
           [val.device]: oldScore[val.device] + (isBonus ? 5 : 10),
         }));
 
+        // setIsPlaying(false)
+
         setTimeout(() => {
           if (step < questions.length) {
             setStep((v) => v + 1);
@@ -110,6 +114,7 @@ const Quiz = ({ questions }) => {
           } else {
             setShowScore(true);
           }
+          setIsPlaying(true);
         }, 4000);
       } else {
         if (!isBonus) {
@@ -135,28 +140,44 @@ const Quiz = ({ questions }) => {
     [currentQuestion, isBonus, isOptionsDisabled, questions, step]
   );
 
-  useEffect(() => {
-    const socket = io(SOCKET_URL, {
-      transports: ["polling", "websocket"], // use WebSocket first, if available
-      reconnectionDelayMax: 20000,
-    });
-    socket.on("response", (val) => {
-      console.log("response");
-      validateAnswer(val);
-    });
-    // socket.on("connection", () => {
-    //   console.log("socket connected");
-    // });
+  const {} = useSocketEvent("response", validateAnswer);
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [validateAnswer]);
+  // useEffect(() => {
+  //   // socket.connect();
+  //   socket.on("connect", () => {
+  //     console.log(socket.id);
+  //   });
+  //   socket.on("disconnect", (reason) =>
+  //     console.log(`Client disconnected: ${reason}`)
+  //   );
+  //   socket.on("reconnect", (socket) => {
+  //     console.log("Sono riconnesso!", socket);
+  //   });
 
-  useEffect(() => {
-    // playTick();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   socket.on("connect_error", (reason) =>
+  //     console.log(`Client connect_error: ${reason}`)
+  //   );
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [socket]);
+
+  // useEffect(() => {
+  //   socket.on("response", (val) => {
+  //     console.log("response");
+  //     validateAnswer(val);
+  //   });
+
+  //   // return () => {
+  //   //   socket.disconnect();
+  //   // };
+  // }, [validateAnswer]);
+
+  // useEffect(() => {
+  //   playTick();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   console.log({ currentQuestion });
 
@@ -169,39 +190,14 @@ const Quiz = ({ questions }) => {
         <div className="bg-gray-100 rounded-xl max-w-[450px] py-8 px-6 mx-auto w-full">
           <div className="text-center font-bold text-2xl">{quiz.title}</div>
           <div className="">
-            <Line
-              percent={((step + 1) / questions.length) * 100}
-              strokeWidth={3}
-              trailWidth={3}
-              strokeColor="rgba(5, 150, 105, 1)"
-              // strokeColor="rgba(17, 24, 39, 1)"
+            <QuizCardHeader
+              step={step}
+              isBonus={isBonus}
+              currentQuestion={currentQuestion}
+              questions={questions}
+              currentOptionSelected={currentOptionSelected}
+              yourPick={yourPick}
             />
-            <div className="text-2xl mt-4 text-gray-500">
-              <span className="text-4xl">{step + 1}</span>
-              <span className="text-2xl">
-                {"/"}
-                {questions.length}
-              </span>
-            </div>
-            {isBonus && (
-              <p className="font-bold text-2xl italic text-green-600">BONUS</p>
-            )}
-            <div className="text-2xl">{currentQuestion?.question}</div>
-            {currentOptionSelected ? (
-              <div
-                className={classNames("text-xl", {
-                  "text-red-700":
-                    !currentOptionSelected === currentQuestion.answer,
-                  "text-green-700":
-                    currentOptionSelected === currentQuestion.answer,
-                })}
-              >
-                You picked {yourPick} and you're{" "}
-                {currentOptionSelected === currentQuestion.answer
-                  ? "Correct"
-                  : "Wrong"}
-              </div>
-            ) : null}
             <ul>
               {currentQuestion?.options?.map((option, i) => (
                 <li key={i} className="bg-white rounded-lg shadow flex my-3">
@@ -232,13 +228,10 @@ const Quiz = ({ questions }) => {
             )}
             <CountdownCircleTimer
               key={timerKey}
-              isPlaying
+              isPlaying={!isOptionsDisabled}
               duration={isBonus ? 15 : 135}
-              colors={[
-                ["#004777", 0.33],
-                ["#F7B801", 0.33],
-                ["#A30000", 0.33],
-              ]}
+              colors={["#004777", "#F7B801", "#A30000"]}
+              colorsTime={[135, 135 / 2, 135 / 3]}
               onComplete={timerCallback}
               // onComplete={() => [true, 1000]}
             >
@@ -246,23 +239,7 @@ const Quiz = ({ questions }) => {
             </CountdownCircleTimer>
           </div>
         </div>
-        <div className="w-full absolute h-[40px] px-2 pb-8 bg-white bottom-0 grid grid-cols-2 items-center">
-          <div className="text-2xl font-bold">Scoreboard:</div>
-          <div className="grid grid-cols-2 text-xl">
-            <p className="">
-              Device 1 {"=>"} {score["1"]}
-            </p>
-            <p className="">
-              Device 2 {"=>"} {score["2"]}
-            </p>
-            <p className="">
-              Device 3 {"=>"} {score["3"]}
-            </p>
-            <p className="">
-              Device 4 {"=>"} {score["4"]}
-            </p>
-          </div>
-        </div>
+        <BottomScoreboard score={score} />
       </div>
     </FadeLayout>
   );

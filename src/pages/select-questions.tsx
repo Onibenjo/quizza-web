@@ -12,7 +12,7 @@ const SelectQuestionsPage = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [canProceed, setCanProceed] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
-  const [numQuiz, setNumQuiz] = useState(0);
+  const [numQuiz, _setNumQuiz] = useState(1);
 
   const { setQuiz } = useApp();
   const [{ data, loading, error }] = useAxios(API.getAllQuizzes);
@@ -81,7 +81,7 @@ const SelectQuestionsPage = () => {
               label: title,
             }))}
           />
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <label htmlFor="numQuiz">Input number of questions</label>
             <input
               type="number"
@@ -92,7 +92,7 @@ const SelectQuestionsPage = () => {
               value={String(numQuiz)}
               onChange={(e) => setNumQuiz(Number(e.target.value))}
             />
-          </div>
+          </div> */}
           <Button className="mt-4 w-full" type="submit">
             Get Questions
           </Button>

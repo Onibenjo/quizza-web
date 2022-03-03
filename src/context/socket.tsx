@@ -8,7 +8,6 @@ import {
   useRef,
 } from "react";
 
-// export const socket = io(SOCKET_URL);
 export const SocketIOContext = createContext(undefined);
 export const useSocket = () => useContext(SocketIOContext);
 
