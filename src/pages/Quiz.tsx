@@ -3,12 +3,13 @@ import { FadeLayout } from "components";
 import { useApp } from "context/app";
 import { useSocket, useSocketEvent } from "context/socket";
 // import { useFetchQuizQuestions } from "hooks/useFetchQuizQuestions";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import useSound from "use-sound";
 import { IoCheckbox, IoCloseCircle } from "react-icons/io5";
 import { ScoreBoard } from "components/ScoreBoard";
 import BottomScoreboard from "components/Quiz/BottomScoreboard";
+import useKeyPress from "hooks/useKeyPress";
 // import { socket } from "lib/socket";
 
 type ITimerCallback = void | { shouldRepeat: boolean; delay: number };
@@ -29,24 +30,30 @@ const renderTime = ({ remainingTime }) => {
   );
 };
 
+const TIMER_CONSTANT = 4000;
 const Quiz = ({ questions }) => {
-  // const socket = useSocket();
+  const socket = useSocket();
   // useFetchQuizQuestions();
 
   const [playTick, { stop: stopTick }] = useSound("/sounds/Clock-Ticking.mp3");
+  const isMPressed = useKeyPress("m");
   const { quiz } = useApp();
 
   const [step, setStep] = useState(0);
   const [timerKey, setTimerKey] = useState(0);
-  const [isBonus, setIsBonus] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
+  // const [isBonus, setIsBonus] = useState(false);
+  const isBonus = useRef(false);
   const [yourPick, setYourPick] = useState("");
+  const [answeredContestant, setAnsweredContestant] = useState(null);
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
   const [correctOption, setCorrectOption] = useState(null);
   const [isOptionsDisabled, setIsOptionsDisabled] = useState(false);
+  // const isOptionsDisabled = useRef(false);
   const [score, setScore] = useState({ 1: 0, 2: 0, 3: 0, 4: 0 });
   const [showScore, setShowScore] = useState(false);
+
+  const timerRef = useRef(null);
 
   useEffect(() => {
     setTimerKey((prev) => prev + 1);
@@ -58,128 +65,139 @@ const Quiz = ({ questions }) => {
     console.log(step, questions.length - 1, step <= questions.length - 1);
 
     if (!isOptionsDisabled) {
-      if (isBonus) {
-        setIsBonus(false);
+      if (isBonus.current) {
+        // setIsBonus(false);
+        isBonus.current = false;
       }
       if (step < questions.length - 1) {
         setCurrentOptionSelected(null);
         setCorrectOption(null);
         setIsOptionsDisabled(false);
+        // isOptionsDisabled.current = false;
         setStep((prev) => prev + 1);
-        playTick();
+        // playTick();
         return { shouldRepeat: true, delay: 1 };
         // return [true, 1000] as [boolean, number];
       } else {
-        stopTick();
+        // stopTick();
         setShowScore(true);
       }
     }
   };
 
-  const validateAnswer = useCallback(
-    (_val) => {
+  // const {} = useSocketEvent("response", validateAnswer);
+
+  useEffect(() => {
+    // socket.connect();
+    socket.on("connect", () => {
+      console.log(socket.id);
+    });
+    socket.on("disconnect", (reason) =>
+      console.log(`Client disconnected: ${reason}`)
+    );
+    socket.on("reconnect", (socket) => {
+      console.log("Sono riconnesso!", socket);
+    });
+
+    socket.on("connect_error", (reason) =>
+      console.log(`Client connect_error: ${reason}`)
+    );
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    function handler(_val) {
       const val = { device: _val.device, option: _val.option.toUpperCase() };
       console.log("socket:=> response connected", val);
-      console.log(currentQuestion);
-      console.log(
-        currentQuestion.options[options.indexOf(val.option)],
-        currentQuestion.answer
-      );
+      const _currentQuestion = questions[step];
+      const answer = _currentQuestion.answer;
       if (isOptionsDisabled) return;
-
+      if (isBonus.current && answeredContestant === val.device) return;
+      if (!isBonus.current && answeredContestant) setAnsweredContestant(null);
       const selectedOption =
-        currentQuestion.options[options.indexOf(val.option)];
+        _currentQuestion.options[options.indexOf(val.option)];
+      console.log(selectedOption, answer);
 
       setIsOptionsDisabled(true);
       setCurrentOptionSelected(selectedOption);
-      setCorrectOption(currentQuestion.answer);
+      setCorrectOption(answer);
 
-      setYourPick(val.option + ", " + selectedOption);
-      // return;
-      if (selectedOption === currentQuestion.answer) {
+      setYourPick(
+        `Contestant ${val.device} chose ${val.option}, ${selectedOption}`
+      );
+
+      if (selectedOption === answer) {
+        alert("CORRECT");
         setScore((oldScore) => ({
           ...oldScore,
-          [val.device]: oldScore[val.device] + (isBonus ? 5 : 10),
+          [val.device]: oldScore[val.device] + (isBonus.current ? 5 : 10),
         }));
-
-        // setIsPlaying(false)
-
-        setTimeout(() => {
+        timerRef.current = setTimeout(() => {
           if (step < questions.length) {
             setStep((v) => v + 1);
             setCurrentOptionSelected(null);
             setCorrectOption(null);
             setIsOptionsDisabled(false);
-            setIsBonus(false);
+            // setIsBonus(false);
+            isBonus.current ? (isBonus.current = false) : null;
           } else {
             setShowScore(true);
           }
-          setIsPlaying(true);
-        }, 4000);
+        }, TIMER_CONSTANT);
       } else {
-        if (!isBonus) {
+        if (!isBonus.current) {
+          setAnsweredContestant(val.device);
           setScore((oldScore) => ({
             ...oldScore,
-            [val.device]: oldScore[val.device] - 5,
+            [val.device]:
+              oldScore[val.device] >= 5 ? oldScore[val.device] - 5 : 0,
           }));
         }
-        setTimeout(() => {
-          if (isBonus) {
+        console.log("out timeout", { isBonus });
+        timerRef.current = setTimeout(() => {
+          console.log("in timeout", { isBonus });
+          if (isBonus.current) {
             setStep((v) => v + 1);
             // setIsBonus(false);
           } else {
             // setIsBonus(true);
           }
-          setIsBonus((v) => !v);
+          isBonus.current = !isBonus.current;
+          setIsOptionsDisabled(false);
+          setTimerKey((prev) => prev + 1);
+          // setIsBonus((v) => !v);
           setCurrentOptionSelected(null);
           setCorrectOption(null);
-          setIsOptionsDisabled(false);
-        }, 4000);
+          // setIsOptionsDisabled(false);
+        }, TIMER_CONSTANT);
       }
-    },
-    [currentQuestion, isBonus, isOptionsDisabled, questions, step]
-  );
+    }
+    socket.on("response", handler);
 
-  const {} = useSocketEvent("response", validateAnswer);
+    return () => {
+      socket.off("response", handler);
+      // socket.disconnect();
+    };
+  }, [answeredContestant, isOptionsDisabled, questions, socket, step]);
 
-  // useEffect(() => {
-  //   // socket.connect();
-  //   socket.on("connect", () => {
-  //     console.log(socket.id);
-  //   });
-  //   socket.on("disconnect", (reason) =>
-  //     console.log(`Client disconnected: ${reason}`)
-  //   );
-  //   socket.on("reconnect", (socket) => {
-  //     console.log("Sono riconnesso!", socket);
-  //   });
+  useEffect(() => {
+    if (isMPressed) {
+      console.log("m pressed");
+      playTick();
+    } else stopTick();
+  }, [isMPressed, playTick, stopTick]);
 
-  //   socket.on("connect_error", (reason) =>
-  //     console.log(`Client connect_error: ${reason}`)
-  //   );
+  useEffect(() => {
+    if (isOptionsDisabled) {
+      stopTick();
+    } else playTick();
+    // //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOptionsDisabled, playTick, stopTick]);
 
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   socket.on("response", (val) => {
-  //     console.log("response");
-  //     validateAnswer(val);
-  //   });
-
-  //   // return () => {
-  //   //   socket.disconnect();
-  //   // };
-  // }, [validateAnswer]);
-
-  // useEffect(() => {
-  //   playTick();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  console.log({ currentQuestion });
+  // console.log({ currentQuestion });
 
   if (showScore || step >= questions.length) {
     return <ScoreBoard score={score} />;
@@ -192,7 +210,7 @@ const Quiz = ({ questions }) => {
           <div className="">
             <QuizCardHeader
               step={step}
-              isBonus={isBonus}
+              isBonus={isBonus.current}
               currentQuestion={currentQuestion}
               questions={questions}
               currentOptionSelected={currentOptionSelected}
@@ -221,7 +239,7 @@ const Quiz = ({ questions }) => {
         </div>
         <div className="bg-gray-100 rounded-xl max-w-[500px] py-8 px-4 mx-auto">
           <div className="flex justify-center flex-col">
-            {isBonus && (
+            {isBonus.current && (
               <p className="text-2xl text-center mb-4 uppercase font-bold">
                 Bonus
               </p>
@@ -229,7 +247,7 @@ const Quiz = ({ questions }) => {
             <CountdownCircleTimer
               key={timerKey}
               isPlaying={!isOptionsDisabled}
-              duration={isBonus ? 15 : 135}
+              duration={isBonus.current ? 15 : 135}
               colors={["#004777", "#F7B801", "#A30000"]}
               colorsTime={[135, 135 / 2, 135 / 3]}
               onComplete={timerCallback}

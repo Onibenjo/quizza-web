@@ -31,11 +31,11 @@ export function QuizCardHeader({
       {currentOptionSelected ? (
         <div
           className={classNames("text-xl", {
-            "text-red-700": !currentOptionSelected === currentQuestion.answer,
+            "text-red-700": currentOptionSelected !== currentQuestion.answer,
             "text-green-700": currentOptionSelected === currentQuestion.answer,
           })}
         >
-          You picked {yourPick} and you're{" "}
+          {yourPick} and it's{" "}
           {currentOptionSelected === currentQuestion.answer
             ? "Correct"
             : "Wrong"}
