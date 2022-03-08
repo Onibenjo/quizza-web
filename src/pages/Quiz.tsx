@@ -130,7 +130,7 @@ const Quiz = ({ questions }) => {
       );
 
       if (selectedOption === answer) {
-        alert("CORRECT");
+        // alert("CORRECT");
         setScore((oldScore) => ({
           ...oldScore,
           [val.device]: oldScore[val.device] + (isBonus.current ? 5 : 10),
@@ -223,7 +223,10 @@ const Quiz = ({ questions }) => {
                     {options[i]}
                   </div>
                   <div className="py-4 px-2 max-w-[500px] flex justify-between items-center w-full">
-                    <p className="">{option}</p>
+                    <p
+                      className=""
+                      dangerouslySetInnerHTML={{ __html: option }}
+                    ></p>
                     <span>
                       {option === correctOption ? (
                         <IoCheckbox color="rgba(5, 150, 105,1)" size={30} />

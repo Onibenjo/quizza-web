@@ -27,7 +27,15 @@ export function QuizCardHeader({
       {isBonus && (
         <p className="font-bold text-2xl italic text-green-600">BONUS</p>
       )}
-      <div className="text-2xl">{currentQuestion?.question}</div>
+      <div
+        className="text-2xl"
+        dangerouslySetInnerHTML={{ __html: currentQuestion?.question }}
+      ></div>
+      {/* <div
+        className="text-2xl"
+        dangerouslySetInnerHTML={{ __html: currentQuestion?.question }}>
+        {currentQuestion?.question}
+      </div> */}
       {currentOptionSelected ? (
         <div
           className={classNames("text-xl", {
