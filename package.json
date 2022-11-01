@@ -55,7 +55,7 @@
     "react-lottie-hook": "^0.5.0",
     "react-router-dom": "6.2.2",
     "react-select": "^5.5.8",
-    "socket.io-client": "^4.5.3",
+    "socket.io-client": "4.4",
     "use-sound": "^4.0.1"
   },
   "devDependencies": {
