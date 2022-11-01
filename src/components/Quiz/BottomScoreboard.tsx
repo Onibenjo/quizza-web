@@ -1,6 +1,6 @@
 function BottomScoreboard({ score }) {
   return (
-    <div className="w-full absolute h-[40px] px-2 pb-8 bg-white bottom-0 grid grid-cols-2 items-center">
+    <div className="w-full absolute px-2 py-3 bg-white bottom-0 grid grid-cols-2 items-center">
       <div className="text-2xl font-bold">Scoreboard:</div>
       <div className="grid grid-cols-2 text-xl">
         <p className="">

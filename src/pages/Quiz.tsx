@@ -14,7 +14,8 @@ import useKeyPress from "hooks/useKeyPress";
 
 type ITimerCallback = void | { shouldRepeat: boolean; delay: number };
 
-const options = ["A", "B", "C", "D"];
+const optionsAlphabets = ["A", "B", "C", "D"];
+const options = { A: 0, B: 1, C: 2, D: 3 };
 
 const renderTime = ({ remainingTime }) => {
   if (remainingTime === 0) {
@@ -31,6 +32,10 @@ const renderTime = ({ remainingTime }) => {
 };
 
 const TIMER_CONSTANT = 4000;
+const DEFAULT_TIMER = 30;
+
+// <IoCheckbox color="rgba(5, 150, 105,1)" size={30} />
+
 const Quiz = ({ questions }) => {
   const socket = useSocket();
   // useFetchQuizQuestions();
@@ -117,8 +122,9 @@ const Quiz = ({ questions }) => {
       if (isOptionsDisabled) return;
       if (isBonus.current && answeredContestant === val.device) return;
       if (!isBonus.current && answeredContestant) setAnsweredContestant(null);
-      const selectedOption =
-        _currentQuestion.options[options.indexOf(val.option)];
+      const selectedOption = _currentQuestion.options[options[val.option]];
+      // const selectedOption =
+      //   _currentQuestion.options[options.indexOf(val.option)];
       console.log(selectedOption, answer);
 
       setIsOptionsDisabled(true);
@@ -137,12 +143,13 @@ const Quiz = ({ questions }) => {
         }));
         timerRef.current = setTimeout(() => {
           if (step < questions.length) {
+            isBonus.current ? (isBonus.current = false) : null;
             setStep((v) => v + 1);
             setCurrentOptionSelected(null);
             setCorrectOption(null);
             setIsOptionsDisabled(false);
+            setTimerKey((prev) => prev + 1);
             // setIsBonus(false);
-            isBonus.current ? (isBonus.current = false) : null;
           } else {
             setShowScore(true);
           }
@@ -204,11 +211,12 @@ const Quiz = ({ questions }) => {
   }
   return (
     <FadeLayout>
-      <div className="flex justify-around min-h-screen items-center px-4">
+      <div className="flex justify-around h-screen items-center px-4">
         <div className="bg-gray-100 rounded-xl max-w-[450px] py-8 px-6 mx-auto w-full">
           <div className="text-center font-bold text-2xl">{quiz.title}</div>
           <div className="">
             <QuizCardHeader
+              key={timerKey}
               step={step}
               isBonus={isBonus.current}
               currentQuestion={currentQuestion}
@@ -220,7 +228,7 @@ const Quiz = ({ questions }) => {
               {currentQuestion?.options?.map((option, i) => (
                 <li key={i} className="bg-white rounded-lg shadow flex my-3">
                   <div className="w-10 text-center bg-green-600 text-white flex justify-center items-center">
-                    {options[i]}
+                    {optionsAlphabets[i]}
                   </div>
                   <div className="py-4 px-2 max-w-[500px] flex justify-between items-center w-full">
                     <p
@@ -228,7 +236,8 @@ const Quiz = ({ questions }) => {
                       dangerouslySetInnerHTML={{ __html: option }}
                     ></p>
                     <span>
-                      {option === correctOption ? (
+                      {option === correctOption &&
+                      currentOptionSelected === option ? (
                         <IoCheckbox color="rgba(5, 150, 105,1)" size={30} />
                       ) : option === currentOptionSelected ? (
                         <IoCloseCircle color="#A30000" size={30} />
@@ -250,9 +259,9 @@ const Quiz = ({ questions }) => {
             <CountdownCircleTimer
               key={timerKey}
               isPlaying={!isOptionsDisabled}
-              duration={isBonus.current ? 15 : 135}
+              duration={isBonus.current ? 15 : DEFAULT_TIMER}
               colors={["#004777", "#F7B801", "#A30000"]}
-              colorsTime={[135, 135 / 2, 135 / 3]}
+              colorsTime={[DEFAULT_TIMER, DEFAULT_TIMER / 2, DEFAULT_TIMER / 3]}
               onComplete={timerCallback}
               // onComplete={() => [true, 1000]}
             >
